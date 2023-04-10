@@ -11,8 +11,8 @@ i2c = machine.I2C(0, scl=machine.Pin(3), sda=machine.Pin(2))
 imu = adafruit_bno055.BNO055_I2C(i2c)
 
 # Set up UART communication with GPS module
-uart = machine.UART(1, baudrate=9600, tx=machine.Pin(4), rx=machine.Pin(5))
-gps = adafruit_gps.GPS(uart)
+gpsI2C = machine.I2C(1, scl=machine.Pin(4), sda=machine.Pin(5))
+gps = adafruit_gps.GPS(gpsI2C)
 
 # Set up UART communication with HC-05 Bluetooth module
 radio_uart = machine.UART(2, baudrate=9600, tx=machine.Pin(8), rx=machine.Pin(9))
