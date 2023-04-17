@@ -1,57 +1,72 @@
-import machine
-import utime
-import uos
-import gc
-import ucsv
+import busio
+import time
+import board
+import digitalio
 import adafruit_bno055
 import adafruit_gps
 
-# Set up I2C communication with BNO055 IMU
-i2c = machine.I2C(0, scl=machine.Pin(3), sda=machine.Pin(2))
-imu = adafruit_bno055.BNO055_I2C(i2c)
+# test bootup
+led = digitalio.DigitalInOut(board.LED)
+led.direction = digitalio.Direction.OUTPUT
+led.value = True
+time.sleep(5)
+led.value = False
+time.sleep(.250)
 
-# Set up UART communication with GPS module
-gpsI2C = machine.I2C(1, scl=machine.Pin(4), sda=machine.Pin(5))
-gps = adafruit_gps.GPS(gpsI2C)
 
-# Set up UART communication with HC-05 Bluetooth module
-radio_uart = machine.UART(2, baudrate=9600, tx=machine.Pin(8), rx=machine.Pin(9))
+I2C_SCL = board.GP3
+I2C_SDA = board.GP2
+I2C = busio.I2C(I2C_SCL, I2C_SDA)
 
-# Set up USB serial communication
-usb_serial = machine.UART(0, baudrate=115200, tx=machine.Pin(1), rx=machine.Pin(0))
+# Set up IMU
+IMU = adafruit_bno055.BNO055_I2C(I2C, address=0x28)
 
-# Open file for writing GPS and IMU data
-filename = "gps_imu_data.csv"
-if not uos.path.exists(filename):
-    with open(filename, 'w', newline='') as file:
-        writer = ucsv.writer(file)
-        writer.writerow(["Timestamp", "Latitude", "Longitude", "Heading", "Roll", "Pitch"])
+# Set up GPS
+# GPS_SCL = board.GP7
+# GPS_SDA = board.GP6
+# GPS_I2C = busio.I2C(GPS_SCL, GPS_SDA)
+# GPS = adafruit_gps.GPS_GtopI2C(GPS_I2C)
+GPS = adafruit_gps.GPS_GtopI2C(I2C, address=0x10)
+# Turn on the basic GGA and RMC info (what you typically want)
+GPS.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
 
+# Set up radio
+radio_tx = board.GP0 
+radio_rx = board.GP1
+radio = busio.UART(radio_tx, radio_rx, baudrate=9600)
+
+timestamp = time.monotonic()
 while True:
-    # Get GPS data
-    gps.update()
-    if gps.has_fix:
-        timestamp = utime.monotonic()
-        latitude = gps.latitude
-        longitude = gps.longitude
-    else:
-        timestamp = None
-        latitude = None
-        longitude = None
-
-    # Get IMU data
-    heading, roll, pitch = imu.euler()
-
-    # Write data to CSV file
-    with open(filename, 'a', newline='') as file:
-        writer = ucsv.writer(file)
-        writer.writerow([timestamp, latitude, longitude, heading, roll, pitch])
-
-    # Send data over radio UART
-    radio_uart.write("{}, {}, {}\n".format(latitude, longitude, heading).encode())
-
-    # Send data over USB serial
-    usb_serial.write("{}, {}, {}, {}, {}, {}\n".format(timestamp, latitude, longitude, heading, roll, pitch).encode())
-
-    gc.collect()
-    utime.sleep(1.0)
+    if radio.in_waiting > 0:
+        radio_data = radio.read()
+        print(radio_data)
+        
+        GPS_data = GPS.read(32)  # read up to 32 bytes
+        
+        if "on" in radio_data:
+            led.value = True
+            time.sleep(0.5)
+            
+            # LED function
+            print("LED on \n")
+            radio.write("LED on \n".encode())
+            
+            # IMU function
+            print("Temp: {}".format(IMU.temperature))
+            radio.write("Temp: {} \n".format(IMU.temperature) .encode())
+            time.sleep(0.1)
+            
+            # GPS function
+            
+            if GPS_data is not None:
+                # convert bytearray to string
+                data_string = ''.join([chr(b) for b in GPS_data])
+                print(data_string, end="")
+                radio.write("GPS: {}\n" .format(data_string).encode())
+        
+        elif "off" in radio_data:
+            led.value = False
+            time.sleep(0.5)
+            print("LED off \n")
+            radio.write("LED off \n".encode())
+            # Write your code here :-)
