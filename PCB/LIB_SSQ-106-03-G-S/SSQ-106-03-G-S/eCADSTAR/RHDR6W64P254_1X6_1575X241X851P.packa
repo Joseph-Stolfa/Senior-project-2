@@ -1,0 +1,13 @@
+(unit MM)
+
+(package "SSQ-106-03-G-S"
+    (type UNDEF)
+    (uver 2)
+    (cuser "SamacSys")
+    (uuser "SamacSys")
+    (utime 2019-10-16-14:44:50)
+    (mountForm default
+        (footprintRef "RHDR6W64P254_1X6_1575X241X851P")
+        (spec "System")
+    )
+)

@@ -1,0 +1,9 @@
+Manufacturer=SAMTEC
+PartNumber=SSQ-106-02-G-S-RA
+PartCategory=Connector
+PackageCategory=Header, Receptacle - Right Angle PTH Box
+PinCount=6
+Version=2.1
+Released=2018-11-05 18:49:09
+Downloaded=2023-04-18 00:21:46
+3D=Y

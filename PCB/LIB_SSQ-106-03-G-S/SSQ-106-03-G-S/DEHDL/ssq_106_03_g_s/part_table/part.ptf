@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'SSQ_106_03_G_S'
+CLASS = IO
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "SAMTEC", "SSQ-106-03-G-S" (!) = "", "RHDR6W64P254_1X6_1575X241X851P", "Header, Receptacle - Straight PTH Box", "200-SSQ10603GS", "https://www.mouser.co.uk/ProductDetail/Samtec/SSQ-106-03-G-S?qs=rU5fayqh%252BE1Zh2ics08F5Q%3D%3D", "6 Position, .100&quot; Tiger Buy&trade; Socket Strip, Square Tail, Single Row", "http://suddendocs.samtec.com/prints/ssq-1xx-xx-xxx-x-xx-xxx-xx-x-mkt.pdf", "8.51 mm"
+END_PART
+
+END.
